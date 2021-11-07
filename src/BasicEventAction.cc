@@ -116,42 +116,64 @@ void BasicEventAction::EndOfEventAction(const G4Event* event)
   
   G4cout << G4endl << " evtNb = " << evtNb ;
 
-  // Get hits collections
+  // Get hits collections of the sensitive detectors
+  // made of Lu2SiO5 
   auto detHC = GetHitsCollection(fDetHCID, event);
 
-  // not used
-  //auto phanHC = GetHitsCollection(fPhanHCID, event);
+  // Get hits collection of the human patient (phantom)
+  // placed inside the detector
+  auto phanHC = GetHitsCollection(fPhanHCID, event);
 
-  // Get hit with total values
+  // Get hit with the overall energy deposited in the detector:
+  // check the configuration of the Hit object and analyse 
+  // BasicPETHit.cc and BasicPETHit.hh files for more information
   auto detHit = (*detHC)[detHC->entries()-1];
 
-  // not used
-  //auto phanHit = (*phanHC)[phanHC->entries()-1];
+  // Similar as before: get the final energy deposited in the
+  // human phantom
+  auto phanHit = (*phanHC)[phanHC->entries()-1];
 
-  // get deposited energy
+  // Get the deposited energy from the detHit object
   G4double dep = detHit->GetEdep();
 
-  // I have followed the code in B3bRun.ccc
-  //  
+  // The following code ressembles the B3bRun.cc file 
   G4HCofThisEvent* HCE = event->GetHCofThisEvent();
   if(!HCE) return;
   
+  // Create an eventMap data structure containing the energy
+  // deposited in the patient as value and the copy number as
+  // key. 
   G4THitsMap<G4double>* evtMap = 
     static_cast<G4THitsMap<G4double>*>(HCE->GetHC(fPhanHCID));
   
+  // Iterate through all the evtMap objects in the event
   std::map<G4int,G4double*>::iterator itr;
   
+  // Invoke analysis manager pointer
+  auto analysisManager = G4AnalysisManager::Instance();
+  
   for (itr = evtMap->GetMap()->begin(); itr != evtMap->GetMap()->end(); itr++) {
+  
+    // edep variable is used for energy deposited in the patient
     G4double edep = *(itr->second);
     
+    // Get the key, which is the copy number of the patient
     G4int copyNb  = (itr->first);
-    //if (edep > 10.)
     G4cout << G4endl << "  patient " << copyNb << ": " << edep/keV << " keV ";
+    
+    // Fill the histogram corresponding to the patient
+    analysisManager->FillH1(1, edep);
+    analysisManager->FillNtupleDColumn(1, edep);
   }  
   
-  // defining a Good Event
+  // Defining a good event, or an event which deposits enough 
+  // energy for reconstruction of the tumour event. Typically, 
+  // such event occurs if more than 89.4% of the original 
+  // energy of 1.022 MeV is deposited in the detector
   G4double EnergyRes = 1.022*0.106;
   G4double Threshold = (1.022 - EnergyRes)*MeV;
+  
+  // dep variable is used for energy deposited in the detector
   if (dep > Threshold) fRunAction->CountEvent();
 
 
@@ -165,15 +187,9 @@ void BasicEventAction::EndOfEventAction(const G4Event* event)
       dep, detHit->GetTrackLength());
   }
 
-  // get analysis manager
-  auto analysisManager = G4AnalysisManager::Instance();
-
   // fill histograms
   analysisManager->FillH1(0, dep);
-  analysisManager->FillH1(1, detHit->GetTrackLength());
-
   analysisManager->FillNtupleDColumn(0, dep);
-  analysisManager->FillNtupleDColumn(1, detHit->GetTrackLength());
   analysisManager->AddNtupleRow();
 
 }

@@ -116,10 +116,10 @@ G4VPhysicalVolume* BasicDetectorConstruction::DefineVolumes()
   G4Material* tube_mat   = nist->FindOrBuildMaterial("Lu2SiO5");
 
   // PET dimensions
-  G4double PET_in_rad = 10*cm, PET_out_rad = PET_in_rad + CrystLength*cm, PET_length = DetLength*m; // vary these
+  G4double PET_in_rad = 15*cm, PET_out_rad = PET_in_rad + (CrystLength*2)*cm, PET_length = 2*m; // vary these
 
   // world size
-  G4double world_dim = 1*m;
+  G4double world_dim = 4*m;
 
   //
   // World
@@ -169,12 +169,12 @@ new G4PVPlacement(0,                       // no rotation
                   false,                   // boolean operation
                   0,                       // number
                   fCheckOverlaps);         // checking overlaps
-
+  
   //
   // patient
   //
   G4double patient_radius = 8*cm;
-  G4double patient_dZ = 10*cm;  
+  G4double patient_dZ = 1.95*m;  
     
   G4Tubs* solidPatient =
     new G4Tubs("Patient", 0., patient_radius, 0.5*patient_dZ, 0., twopi);
@@ -190,7 +190,8 @@ new G4PVPlacement(0,                       // no rotation
                
   //
   // place patient in world
-  //                    
+  //
+                    
   new G4PVPlacement(0,                       //no rotation
                     G4ThreeVector(),         //at (0,0,0)
                     logicPatient,            //its logical volume
@@ -199,8 +200,8 @@ new G4PVPlacement(0,                       // no rotation
                     false,                   //no boolean operation
                     0,                       //copy number
                     fCheckOverlaps);         // checking overlaps 
-
-
+  
+  
   return physWorld;
 }
 
@@ -218,6 +219,7 @@ void BasicDetectorConstruction::ConstructSDandField()
 
   // Make phantom a sensitive detector 
 
+  
   G4MultiFunctionalDetector* patient = new G4MultiFunctionalDetector("patient");
   // the next line was missing which was causing a segmentation fault
   G4SDManager::GetSDMpointer()->AddNewDetector(patient);
@@ -225,6 +227,7 @@ void BasicDetectorConstruction::ConstructSDandField()
   G4VPrimitiveScorer* primitiv2 = new G4PSEnergyDeposit("edep");
   patient->RegisterPrimitive(primitiv2);
   SetSensitiveDetector("Patient",patient);
+  
   
   /*
   auto phantomSD

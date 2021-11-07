@@ -33,6 +33,8 @@
 #include "G4SystemOfUnits.hh"
 #include "Randomize.hh"
 #include "G4RandomDirection.hh"
+#include "G4PhysicalConstants.hh"
+#include <CLHEP/Random/RandGaussQ.h>
 
 // PGA
 // based on Tangle2's back2back photons
@@ -58,38 +60,116 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
   G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
   G4String particleName;
-
-  // get a vertex
+  
+  // Choose to comment out either case 1 or case 2 (see where they start and end)
+  
+  // THIS IS WHERE CASE 1 STARTS
+  /*
+  
+  // Case 1: check that hits' distribution matches the expected
+  // Gauss distribution of parameters mu = 0 and sigma = 0.25 degrees. 
+  // By choice, the hits will go towards the opposite x-axis. One of them will
+  // go straight towards (-1,0,0) direction. The other one will suffer the non-
+  // collinearity effect from the annihilation event.
+  
+  // NOTE: When running this part, comment out the patient of the detector from
+  // BasicDetectorConstruction.cc file. This execrise has the sole purpose of
+  // checking that hits' distribution matches with the theoretical layout of the
+  // annihilation event
+  
+  // Get a vertex
   G4double x0  = 0*cm, y0  = 0*cm, z0  = 0*cm;
-
-  G4ThreeVector random = G4RandomDirection();
-  G4ThreeVector photondir = random.unit();
-
-// For single positrons, uncomment this:
-
-  fParticleGun->SetParticleDefinition(particleTable->FindParticle(particleName="e+"));
-
-  fParticleGun->SetParticleEnergy(0*keV);
-  fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
-  fParticleGun->GeneratePrimaryVertex(anEvent);
-
-// For b2b photons, uncomment this:
-/*
+  
+  // The first beam is along negative x-direction: photon 1
+  G4ThreeVector photonDir = G4ThreeVector(-1,0,0);
+  
+  // We work with gamma rays of 511 keV with the origin at (0,0,0) vector
   fParticleGun->SetParticleDefinition(particleTable->FindParticle(particleName="gamma"));
-
-  // photon 1
-
+  fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
+  fParticleGun->SetParticleEnergy(511*keV);
+  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(-1,0,0));
+  fParticleGun->GeneratePrimaryVertex(anEvent);
+  
+  // Now work for the second photon: this needs to form a cone of solid angle 
+  // proportional to the gauss distribution angle of parameters mu = 0 and sigma = 
+  // 0.25 degrees. Define this angle firstly
+  
+  G4double gauss_value = twopi * G4RandGauss::shoot(0,0.25) / 360;
+  
+  // Also define a uniformly random distributed angle 
+  
+  G4double theta = twopi * G4UniformRand();
+  
+  // Now define the direction for the second photon: This one has to go on the
+  // positive x-direction with a slight solid angle for y and z non-zero values 
+  // as well. Spherical polar coordinates are used.
+  
+  G4ThreeVector photonAntiDir = G4ThreeVector(std::cos(gauss_value), std::sin(gauss_value) * std::cos(theta),
+  					        std::sin(gauss_value) * std::sin(theta));
+  					      
+  // Define now the second photon
+  
   fParticleGun->SetParticleEnergy(511*keV);
   fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
-  fParticleGun->SetParticleMomentumDirection(photondir);
+  fParticleGun->SetParticleMomentumDirection(photonAntiDir);
   fParticleGun->GeneratePrimaryVertex(anEvent);
-
-  // photon 2
-
+  
+  // THIS IS WHERE CASE 1 ENDS
+  */
+  
+  // THIS IS WHERE CASE 2 STARTS
+  
+  // Case 2: now design a uniform radiation spread throughout the human phantom. The patient can be commented
+  // out or not. The patient and detector are modelled as cyllinders, so cyllindrical polar coordinates will 
+  // be used. Use the maximum allowed values.
+  
+  G4double PET_radius = 15*cm;
+  G4double z_max = 1.95*m;
+  G4double alpha_max = twopi;
+  
+  // Now introduce uniform randomness for getting the gamma-radiation inside the human phantom
+  
+  G4double r = PET_radius * G4UniformRand();
+  G4double z = z_max * G4UniformRand() - 0.5 * z_max;
+  G4double alpha = alpha_max * G4UniformRand();
+  
+  // Apply the spherical polar coordinates
+  
+  G4ThreeVector radiationOrigin = G4ThreeVector(r * std::cos(alpha), r * std::sin(alpha), z);
+  
+  // Now use again the non-collinearity effect. This time, however, the origin for each event
+  // becomes variable. Introduce the random angles for the spherical polar coordinates and the
+  // additional gaussian variable
+  
+  G4double theta = twopi * G4UniformRand();
+  G4double phi = twopi * G4UniformRand();
+  G4double gauss_dev = G4RandGauss::shoot(0,0.25) * twopi / 360;
+  
+  // Now use the spherical polar coordinates two produce two beams in nearly opposite directions
+  
+  G4ThreeVector photonDir = G4ThreeVector(std::cos(theta) * std::sin(phi), std::cos(theta) * std::cos(phi), 
+  					   std::sin(theta));
+  G4ThreeVector photonAntiDir = G4ThreeVector(-std::cos(theta + gauss_dev) * std::sin(phi), -std::cos(theta + gauss_dev) * std::cos(phi),
+  						-std::sin(theta + gauss_dev));
+  						
+  // Set the two outcoming photons
+  
+  fParticleGun->SetParticleDefinition(particleTable->FindParticle(particleName="gamma"));
+  
+  // Photon 1
+  
+  fParticleGun->SetParticlePosition(radiationOrigin);
   fParticleGun->SetParticleEnergy(511*keV);
-  fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
-  fParticleGun->SetParticleMomentumDirection(-photondir);
+  fParticleGun->SetParticleMomentumDirection(photonDir);
   fParticleGun->GeneratePrimaryVertex(anEvent);
-*/
+  
+  // Photon 2
+  
+  fParticleGun->SetParticlePosition(radiationOrigin);
+  fParticleGun->SetParticleEnergy(511*keV);
+  fParticleGun->SetParticleMomentumDirection(photonAntiDir);
+  fParticleGun->GeneratePrimaryVertex(anEvent);
+  
+  // THIS IS WHERE CASE 2 ENDS
+  
 }
-//

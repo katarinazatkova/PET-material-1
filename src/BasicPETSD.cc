@@ -30,6 +30,8 @@
 #include "G4ThreeVector.hh"
 #include "G4SDManager.hh"
 #include "G4ios.hh"
+#include "G4RunManager.hh"
+#include "G4UnitsTable.hh"
 
 //
 
@@ -74,11 +76,47 @@ G4bool BasicPETSD::ProcessHits(G4Step* step,
 {
   // energy deposit
   auto edep = step->GetTotalEnergyDeposit();
+  
+  // Invoke analysisManager instance
+  auto analysisManager = G4AnalysisManager::Instance();
 
   if(0.0 < edep) {
 
+    // Get spatial coordinates of the hits. The method originates
+    // from G4Step() class.
     G4ThreeVector p1 = step->GetPreStepPoint()->GetPosition();
     G4ThreeVector p2 = step->GetPostStepPoint()->GetPosition();
+    
+    // Check if these are primary particles through GetTrackID()
+    // method. This method belongs to G4Track() class
+    if(step->GetTrack()->GetTrackID() == 1){
+      
+      // Fill histograms for particle 1 parameters. Both histograms
+      // and Ntuples are filled, in fact
+      analysisManager->FillH1(2, p1.getX());
+      analysisManager->FillH1(4, p1.getY());
+      analysisManager->FillH1(6, p1.getZ());
+      
+      analysisManager->FillNtupleDColumn(2, p1.getX());
+      analysisManager->FillNtupleDColumn(4, p1.getY());
+      analysisManager->FillNtupleDColumn(6, p1.getZ());
+      
+      // Print statement check method
+      G4cout << "Hit 1 - x: " << G4BestUnit(p1.getX(), "Length") << G4endl;
+      
+      }
+     
+    // Same procedures are carried out for the second primary particle 
+    if(step->GetTrack()->GetTrackID() == 2 && p1.getR() > 0){
+    
+      analysisManager->FillH1(3, p1.getX());
+      analysisManager->FillH1(5, p1.getY());
+      analysisManager->FillH1(7, p1.getZ());
+      
+      analysisManager->FillNtupleDColumn(3, p1.getX());
+      analysisManager->FillNtupleDColumn(5, p1.getY());
+      analysisManager->FillNtupleDColumn(7, p1.getZ());
+      }
   }
   // step length
   G4double stepLength = 0.;
@@ -108,6 +146,8 @@ G4bool BasicPETSD::ProcessHits(G4Step* step,
   // Add values
   hit->Add(edep, stepLength);
   hitTotal->Add(edep, stepLength);
+  
+  // analysisManager->AddNtupleRow();
 
   return true;
 }
@@ -127,3 +167,4 @@ void BasicPETSD::EndOfEvent(G4HCofThisEvent*)
 }
 
 //
+

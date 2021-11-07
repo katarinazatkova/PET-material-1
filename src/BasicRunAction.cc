@@ -46,25 +46,6 @@ BasicRunAction::BasicRunAction()
   // Create analysis manager
   // The choice of analysis technology is done via selection of a namespace
   // in BasicAnalysis.hh
-  auto analysisManager = G4AnalysisManager::Instance();
-  G4cout << "Using " << analysisManager->GetType() << G4endl;
-
-  // Create directories
-  analysisManager->SetHistoDirectoryName("histograms");
-  analysisManager->SetNtupleDirectoryName("ntuple");
-  analysisManager->SetVerboseLevel(1);
-  analysisManager->SetNtupleMerging(true);
-    // Note: merging ntuples is available only with Root output
-
-  // Creating histograms
-  analysisManager->CreateH1("Energy","Energy Deposited", 50, 0.,1.25*MeV);
-  analysisManager->CreateH1("Length","Track Length in Detector", 50, 0., 1.0*mm);
-
-  // Creating ntuple
-  analysisManager->CreateNtuple("Basic", "Edep spacial distribution");
-  analysisManager->CreateNtupleDColumn("Edep");
-  analysisManager->CreateNtupleDColumn("TrackLength");
-  analysisManager->FinishNtuple();
 }
 
 //
@@ -74,13 +55,49 @@ BasicRunAction::~BasicRunAction()
   delete G4AnalysisManager::Instance();
 }
 
-//
-
 void BasicRunAction::BeginOfRunAction(const G4Run* run)
 {
 
-  // Get analysis manager
   auto analysisManager = G4AnalysisManager::Instance();
+  G4cout << "Using " << analysisManager->GetType() << G4endl;
+
+  // Create directories
+  analysisManager->SetHistoDirectoryName("histograms");
+  analysisManager->SetNtupleDirectoryName("ntuple");
+  analysisManager->SetVerboseLevel(1);
+  analysisManager->SetNtupleMerging(true);
+  // Note: merging ntuples is available only with Root output
+  
+  // Creating histograms for the spatial coordinates and energies of the
+  // first two hits indexed 1 and 2, as well as for the energy deposited
+  // inside the detector and phantom. An additional histogram is created
+  // for the square root of y**2 + z**2 to check the distribution of the
+  // hits for Case 1 PrimaryGeneratorAction.cc file
+  
+  analysisManager->CreateH1("E_detector","Energy Deposited", 50, 0.,1.25*MeV);
+  analysisManager->CreateH1("E_Phantom", "Energy in phantom", 50, 0., 1.25*MeV);
+  analysisManager->CreateH1("x1","x-position in Detector hit 1", 50,0.,10.0*cm);
+  analysisManager->CreateH1("x2","x-position in Detector hit 2", 50,0.,10.0*cm);
+  analysisManager->CreateH1("y1","y-position in Detector hit 1", 50, 0., 10.0*cm);
+  analysisManager->CreateH1("y2","y-position in Detector hit 2", 50, 0., 10.0*cm);
+  analysisManager->CreateH1("z1","z-position in Detector hit 1", 50, 0., 10.0*cm);
+  analysisManager->CreateH1("z2","z-position in Detector hit 2", 50, 0., 10.0*cm);
+  analysisManager->CreateH1("E1", "Energy of hit 1", 50, 0., 1.25*MeV);
+  analysisManager->CreateH1("E2", "Energy of hit 2", 50, 0., 1.25*MeV);
+
+  // Creating ntuple for the same parameters
+  analysisManager->CreateNtuple("Basic", "Edep spacial distribution");
+  analysisManager->CreateNtupleDColumn("E_detector");
+  analysisManager->CreateNtupleDColumn("E_Phantom");  
+  analysisManager->CreateNtupleDColumn("x1");
+  analysisManager->CreateNtupleDColumn("x2");
+  analysisManager->CreateNtupleDColumn("y1");
+  analysisManager->CreateNtupleDColumn("y2");
+  analysisManager->CreateNtupleDColumn("z1");
+  analysisManager->CreateNtupleDColumn("z2");
+  analysisManager->CreateNtupleDColumn("E1");
+  analysisManager->CreateNtupleDColumn("E2");
+  analysisManager->FinishNtuple();
 
   // Reset the GoodEvent counter
   Reset();
