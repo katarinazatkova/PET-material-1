@@ -114,10 +114,12 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   fParticleGun->SetParticleMomentumDirection(photonAntiDir);
   fParticleGun->GeneratePrimaryVertex(anEvent);
   
-  // THIS IS WHERE CASE 1 ENDS
   */
+  // THIS IS WHERE CASE 1 ENDS
+  
   
   // THIS IS WHERE CASE 2 STARTS
+  
   
   // Case 2: now design a uniform radiation spread throughout the human phantom. The patient can be commented
   // out or not. The patient and detector are modelled as cyllinders, so cyllindrical polar coordinates will 
@@ -141,9 +143,18 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   // becomes variable. Introduce the random angles for the spherical polar coordinates and the
   // additional gaussian variable
   
+  CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine());
+  // CLHEP::HepRandom::setTheSeed(0);
+  
   G4double theta = twopi * G4UniformRand();
   G4double phi = twopi * G4UniformRand();
   G4double gauss_dev = G4RandGauss::shoot(0,0.25) * twopi / 360;
+  // G4double gauss_dev = G4RandGauss::shoot(0, 0.25);
+  // G4double gauss_dev = 0;
+  
+  G4cout << "Value of theta angle: " << theta << G4endl;
+  G4cout << "Value of phi angle: " << phi << G4endl;
+  G4cout << "Value of the gaussian deviation is: " << gauss_dev << G4endl;
   
   // Now use the spherical polar coordinates two produce two beams in nearly opposite directions
   
@@ -169,6 +180,7 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   fParticleGun->SetParticleEnergy(511*keV);
   fParticleGun->SetParticleMomentumDirection(photonAntiDir);
   fParticleGun->GeneratePrimaryVertex(anEvent);
+  
   
   // THIS IS WHERE CASE 2 ENDS
   

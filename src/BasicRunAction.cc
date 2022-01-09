@@ -86,15 +86,15 @@ void BasicRunAction::BeginOfRunAction(const G4Run* run)
   analysisManager->CreateH1("E2", "Energy of hit 2", 50, 0., 1.25*MeV);
 
   // Creating ntuple for the same parameters
-  analysisManager->CreateNtuple("Basic", "Edep spacial distribution");
+  analysisManager->CreateNtuple("BasicWithGauss", "Edep spacial distribution");
   analysisManager->CreateNtupleDColumn("E_detector");
   analysisManager->CreateNtupleDColumn("E_Phantom");  
-  analysisManager->CreateNtupleDColumn("x1");
-  analysisManager->CreateNtupleDColumn("x2");
-  analysisManager->CreateNtupleDColumn("y1");
-  analysisManager->CreateNtupleDColumn("y2");
-  analysisManager->CreateNtupleDColumn("z1");
-  analysisManager->CreateNtupleDColumn("z2");
+  analysisManager->CreateNtupleDColumn("x21");
+  analysisManager->CreateNtupleDColumn("x22");
+  analysisManager->CreateNtupleDColumn("y21");
+  analysisManager->CreateNtupleDColumn("y22");
+  analysisManager->CreateNtupleDColumn("z21");
+  analysisManager->CreateNtupleDColumn("z22");
   analysisManager->CreateNtupleDColumn("E1");
   analysisManager->CreateNtupleDColumn("E2");
   analysisManager->FinishNtuple();
@@ -104,7 +104,7 @@ void BasicRunAction::BeginOfRunAction(const G4Run* run)
 
   // Open an output file featuring the runID
   G4int runid = run->GetRunID();
-  G4String fileName = "BasicOut" + std::to_string(runid);
+  G4String fileName = "BasicWithGauss" + std::to_string(runid);
   analysisManager->OpenFile(fileName);
 
 }
