@@ -64,7 +64,7 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   // Choose to comment out either case 1 or case 2 (see where they start and end)
   
   // THIS IS WHERE CASE 1 STARTS
-  /*
+  
   
   // Case 1: check that hits' distribution matches the expected
   // Gauss distribution of parameters mu = 0 and sigma = 0.25 degrees. 
@@ -114,12 +114,12 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   fParticleGun->SetParticleMomentumDirection(photonAntiDir);
   fParticleGun->GeneratePrimaryVertex(anEvent);
   
-  */
+  
   // THIS IS WHERE CASE 1 ENDS
   
   
   // THIS IS WHERE CASE 2 STARTS
-  
+  /*
   
   // Case 2: now design a uniform radiation spread throughout the human phantom. The patient can be commented
   // out or not. The patient and detector are modelled as cyllinders, so cyllindrical polar coordinates will 
@@ -181,7 +181,7 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   fParticleGun->SetParticleMomentumDirection(photonAntiDir);
   fParticleGun->GeneratePrimaryVertex(anEvent);
   
-  
+  */
   // THIS IS WHERE CASE 2 ENDS
   
 }
