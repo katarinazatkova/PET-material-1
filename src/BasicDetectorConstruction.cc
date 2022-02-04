@@ -116,7 +116,7 @@ G4VPhysicalVolume* BasicDetectorConstruction::DefineVolumes()
   G4Material* tube_mat   = nist->FindOrBuildMaterial("Lu2SiO5");
 
   // PET dimensions
-  G4double PET_in_rad = 15*cm, PET_out_rad = PET_in_rad + (CrystLength*2)*cm, PET_length = 2*m; // vary these
+  G4double PET_in_rad = (78.6/2)*cm, PET_out_rad = PET_in_rad + (CrystLength)*cm, PET_length = 1.95*m; // vary these
 
   // world size
   G4double world_dim = 4*m;
@@ -173,7 +173,7 @@ new G4PVPlacement(0,                       // no rotation
   //
   // patient
   //
-  G4double patient_radius = 8*cm;
+  G4double patient_radius = (76/2)*cm;
   G4double patient_dZ = 1.95*m;  
     
   G4Tubs* solidPatient =
@@ -191,7 +191,7 @@ new G4PVPlacement(0,                       // no rotation
   //
   // place patient in world
   //
-                    
+  /*                  
   new G4PVPlacement(0,                       //no rotation
                     G4ThreeVector(),         //at (0,0,0)
                     logicPatient,            //its logical volume
@@ -201,7 +201,7 @@ new G4PVPlacement(0,                       // no rotation
                     0,                       //copy number
                     fCheckOverlaps);         // checking overlaps 
   
-  
+  */
   return physWorld;
 }
 
