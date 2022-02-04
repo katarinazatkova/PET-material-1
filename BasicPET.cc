@@ -62,8 +62,8 @@ int BasicRunAction::GoodEventCount = 0;
 
 // quickest way to change every instance
 // of these values at once
-double lgth = 0.2;
-double thck = 2.76;
+double lgth = 1.81; //cm
+double thck = 2.76; //mm
 
 double BasicRunAction::DetLength = lgth, BasicDetectorConstruction::DetLength = lgth;
 double BasicRunAction::CrystLength = thck, BasicDetectorConstruction::CrystLength = thck;
