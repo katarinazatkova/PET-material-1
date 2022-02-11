@@ -62,8 +62,8 @@ void BasicRunAction::BeginOfRunAction(const G4Run* run)
   G4cout << "Using " << analysisManager->GetType() << G4endl;
 
   // Create directories
-  analysisManager->SetHistoDirectoryName("histograms");
-  analysisManager->SetNtupleDirectoryName("ntuple");
+  //analysisManager->SetHistoDirectoryName("histograms");
+  //analysisManager->SetNtupleDirectoryName("ntuple");
   analysisManager->SetVerboseLevel(1);
   analysisManager->SetNtupleMerging(true);
   // Note: merging ntuples is available only with Root output
@@ -89,12 +89,12 @@ void BasicRunAction::BeginOfRunAction(const G4Run* run)
   analysisManager->CreateNtuple("BasicWithGauss", "Edep spacial distribution");
   analysisManager->CreateNtupleDColumn("E_detector");
   analysisManager->CreateNtupleDColumn("E_Phantom");  
-  analysisManager->CreateNtupleDColumn("x21");
-  analysisManager->CreateNtupleDColumn("x22");
-  analysisManager->CreateNtupleDColumn("y21");
-  analysisManager->CreateNtupleDColumn("y22");
-  analysisManager->CreateNtupleDColumn("z21");
-  analysisManager->CreateNtupleDColumn("z22");
+  analysisManager->CreateNtupleDColumn("x1");
+  analysisManager->CreateNtupleDColumn("x2");
+  analysisManager->CreateNtupleDColumn("y1");
+  analysisManager->CreateNtupleDColumn("y2");
+  analysisManager->CreateNtupleDColumn("z1");
+  analysisManager->CreateNtupleDColumn("z2");
   analysisManager->CreateNtupleDColumn("E1");
   analysisManager->CreateNtupleDColumn("E2");
   analysisManager->FinishNtuple();

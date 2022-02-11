@@ -104,14 +104,16 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   // positive x-direction with a slight solid angle for y and z non-zero values 
   // as well. Spherical polar coordinates are used.
   
-  G4ThreeVector photonAntiDir = G4ThreeVector(std::cos(gauss_value), std::sin(gauss_value) * std::cos(theta),
-  					        std::sin(gauss_value) * std::sin(theta));
+  G4ThreeVector photonAntiDir = G4ThreeVector(std::cos(gauss_value),
+					      std::sin(gauss_value) * std::cos(theta),
+					      std::sin(gauss_value) * std::sin(theta));
   					      
   // Define now the second photon
   
   fParticleGun->SetParticleEnergy(511*keV);
   fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
-  fParticleGun->SetParticleMomentumDirection(photonAntiDir);
+  //fParticleGun->SetParticleMomentumDirection(photonAntiDir);
+  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(1,0,0));
   fParticleGun->GeneratePrimaryVertex(anEvent);
   
   
