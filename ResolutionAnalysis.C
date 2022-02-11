@@ -30,9 +30,6 @@ void ResolutionAnalysis(){
   Double_t	z21;
   Double_t	z22;
     
-  // List of branches
-  TBranch *E_abs;
-  
   // Input files
   TFile *inputFileNoGauss = new TFile("BasicNoGauss0.root", "read");
   TFile *inputFileWithGauss = new TFile("BasicWithGauss0.root", "read");
@@ -51,19 +48,19 @@ void ResolutionAnalysis(){
   dirNoGauss->GetObject("BasicNoGauss", inputTreeNoGauss);
   dirWithGauss->GetObject("BasicWithGauss", inputTreeWithGauss);
   
-  inputTreeNoGauss->SetBranchAddress("x11", &x11, &E_abs);
-  inputTreeNoGauss->SetBranchAddress("x12", &x12, &E_abs);
-  inputTreeNoGauss->SetBranchAddress("y11", &x11, &E_abs);
-  inputTreeNoGauss->SetBranchAddress("y12", &x12, &E_abs); 
-  inputTreeNoGauss->SetBranchAddress("z11", &x11, &E_abs);
-  inputTreeNoGauss->SetBranchAddress("z12", &x12, &E_abs); 
+  inputTreeNoGauss->SetBranchAddress("x11", &x11);
+  inputTreeNoGauss->SetBranchAddress("x12", &x12);
+  inputTreeNoGauss->SetBranchAddress("y11", &y11);
+  inputTreeNoGauss->SetBranchAddress("y12", &y12); 
+  inputTreeNoGauss->SetBranchAddress("z11", &z11);
+  inputTreeNoGauss->SetBranchAddress("z12", &z12); 
   
-  inputTreeWithGauss->SetBranchAddress("x21", &x21, &E_abs);
-  inputTreeWithGauss->SetBranchAddress("x22", &x22, &E_abs);
-  inputTreeWithGauss->SetBranchAddress("y21", &y21, &E_abs);
-  inputTreeWithGauss->SetBranchAddress("y22", &y22, &E_abs); 
-  inputTreeWithGauss->SetBranchAddress("z21", &z21, &E_abs);
-  inputTreeWithGauss->SetBranchAddress("z22", &z22, &E_abs);
+  inputTreeWithGauss->SetBranchAddress("x21", &x21);
+  inputTreeWithGauss->SetBranchAddress("x22", &x22);
+  inputTreeWithGauss->SetBranchAddress("y21", &y21);
+  inputTreeWithGauss->SetBranchAddress("y22", &y22); 
+  inputTreeWithGauss->SetBranchAddress("z21", &z21);
+  inputTreeWithGauss->SetBranchAddress("z22", &z22);
    
   Long64_t nentries = inputTreeNoGauss->GetEntriesFast();
   
@@ -86,11 +83,10 @@ void ResolutionAnalysis(){
     
     cout << "Distance d1 is: " << d1 << endl;
     cout << "Distance d2 is: " << d2 << endl;
-    
+
     d->Fill(d1);
     d->Fill(d2);
-  }
-  
-  d->SetLineColor(kBlue);
-  d->Draw();
+
+    d->SetLineColor(kBlue);
+    d->Draw();
 }
