@@ -12,7 +12,7 @@
 using namespace std;
 using namespace TMath;
 
-void ResolutionAnalysis(){
+void Compare(){
 
   // INPUT
   // Declaration of the leaf types  
