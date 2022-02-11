@@ -112,8 +112,15 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   
   fParticleGun->SetParticleEnergy(511*keV);
   fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
+
+  // Gary - I hard coded the second photon direction here
+  //        as a temporary measure. The next step could 
+  //        be to implement a fixed angle with respect to
+  //        the beam axis.
+  
   //fParticleGun->SetParticleMomentumDirection(photonAntiDir);
   fParticleGun->SetParticleMomentumDirection(G4ThreeVector(1,0,0));
+  
   fParticleGun->GeneratePrimaryVertex(anEvent);
   
   
