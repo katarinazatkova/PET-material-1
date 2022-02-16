@@ -125,7 +125,7 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     // Spherical polar coordinates are used
     G4ThreeVector photonDir_case2 = G4ThreeVector(std::cos(phi), 
                   std::sin(phi) * std::cos(theta), 
-  					      std::sin(phi) * std::sin(theta));  
+  					           std::sin(phi) * std::sin(theta));  
 
     fParticleGun->SetParticleMomentumDirection(photonDir_case2);
     fParticleGun->GeneratePrimaryVertex(anEvent);
@@ -144,7 +144,7 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     // Spherical polar coordinates are used again.
     G4ThreeVector photonDir_case3 = G4ThreeVector(std::cos(phi_gauss), 
                   std::sin(phi_gauss) * std::cos(theta), 
-  					      std::sin(phi_gauss) * std::sin(theta));  
+  					           std::sin(phi_gauss) * std::sin(theta));  
 
     fParticleGun->SetParticleMomentumDirection(photonDir_case3);
     fParticleGun->GeneratePrimaryVertex(anEvent);
