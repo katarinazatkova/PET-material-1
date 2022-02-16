@@ -80,49 +80,75 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   // Get a vertex
   G4double x0  = 0*cm, y0  = 0*cm, z0  = 0*cm;
   
-  // The first beam is along negative x-direction: photon 1
-  G4ThreeVector photonDir = G4ThreeVector(-1,0,0);
-  
   // We work with gamma rays of 511 keV with the origin at (0,0,0) vector
+  
+  // Photon 1
   fParticleGun->SetParticleDefinition(particleTable->FindParticle(particleName="gamma"));
-  fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
+  fParticleGun->SetParticlePosition(G4ThreeVector(x0, y0, z0));
   fParticleGun->SetParticleEnergy(511*keV);
-  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(-1,0,0));
+  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(-1, 0, 0));
   fParticleGun->GeneratePrimaryVertex(anEvent);
-  
-  // Now work for the second photon: this needs to form a cone of solid angle 
-  // proportional to the gauss distribution angle of parameters mu = 0 and sigma = 
-  // 0.25 degrees. Define this angle firstly
-  
-  G4double gauss_value = twopi * G4RandGauss::shoot(0,0.25) / 360;
-  
-  // Also define a uniformly random distributed angle 
-  
-  G4double theta = twopi * G4UniformRand();
-  
-  // Now define the direction for the second photon: This one has to go on the
-  // positive x-direction with a slight solid angle for y and z non-zero values 
-  // as well. Spherical polar coordinates are used.
-  
-  G4ThreeVector photonAntiDir = G4ThreeVector(std::cos(gauss_value),
-					      std::sin(gauss_value) * std::cos(theta),
-					      std::sin(gauss_value) * std::sin(theta));
-  					      
-  // Define now the second photon
-  
-  fParticleGun->SetParticleEnergy(511*keV);
-  fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
 
-  // Gary - I hard coded the second photon direction here
-  //        as a temporary measure. The next step could 
-  //        be to implement a fixed angle with respect to
-  //        the beam axis.
+  // Photon 2
+  fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
+  fParticleGun->SetParticleEnergy(511*keV);
+
+  // Implementation of different beam cases:
+  // 0 - back-to-back
+  // 1 - fixed direction at 5 deg wrt photon 1
+  // 2 - fixed angle around beam axis
+  // 3 - Gaussian angular distribution
+
+  int collinearity = 0; // only this parameter needs to be changed to apply beam non-collinearity
+
+  if (collinearity == 0){
+
+    fParticleGun->SetParticleMomentumDirection(G4ThreeVector(1, 0, 0));
+    fParticleGun->GeneratePrimaryVertex(anEvent);
+  }
+
+  else if (collinearity == 1){
+    
+    G4double phi = 20 * twopi/360;
+
+    fParticleGun->SetParticleMomentumDirection(G4ThreeVector(std::cos(phi), std::sin(phi), 0));
+    fParticleGun->GeneratePrimaryVertex(anEvent);
+  }
+
+  else if (collinearity == 2){         
   
-  //fParticleGun->SetParticleMomentumDirection(photonAntiDir);
-  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(1,0,0));
+    G4double phi = 20 * twopi/360;    
+    G4double theta = twopi * G4UniformRand();
+
+    // Direction for the second photon: 
+    // It goes in positive x-direction with a slight solid angle for y and z non-zero values.
+    // Spherical polar coordinates are used
+    G4ThreeVector photonDir_case2 = G4ThreeVector(std::cos(phi), 
+                  std::sin(phi) * std::cos(theta), 
+  					      std::sin(phi) * std::sin(theta));  
+
+    fParticleGun->SetParticleMomentumDirection(photonDir_case2);
+    fParticleGun->GeneratePrimaryVertex(anEvent);
+  }
   
-  fParticleGun->GeneratePrimaryVertex(anEvent);
-  
+  else{
+    
+    // Forming a cone of solid angle proportional to the gauss distribution angle
+    // with mu = 0 and sigma = 0.25 degrees.
+    G4double phi_gauss = twopi * G4RandGauss::shoot(0,10) / 360; 
+    G4double theta = twopi * G4UniformRand(); 
+    
+    // Direction for the second photon: 
+    // It goes in positive x-direction with a slight solid angle proportional
+    // to the gauss distribution angle with mu = 0 and sigma = 0.25 degrees.
+    // Spherical polar coordinates are used again.
+    G4ThreeVector photonDir_case3 = G4ThreeVector(std::cos(phi_gauss), 
+                  std::sin(phi_gauss) * std::cos(theta), 
+  					      std::sin(phi_gauss) * std::sin(theta));  
+
+    fParticleGun->SetParticleMomentumDirection(photonDir_case3);
+    fParticleGun->GeneratePrimaryVertex(anEvent);
+  }
   
   // THIS IS WHERE CASE 1 ENDS
   
