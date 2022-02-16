@@ -86,7 +86,9 @@ void BasicDetectorConstruction::DefineMaterials()
   G4NistManager* man = G4NistManager::Instance();
 
   G4bool isotopes = false;
-
+  
+  // LSO
+  /*
   G4Element*  O = man->FindOrBuildElement("O" , isotopes);
   G4Element* Si = man->FindOrBuildElement("Si", isotopes);
   G4Element* Lu = man->FindOrBuildElement("Lu", isotopes);
@@ -95,6 +97,21 @@ void BasicDetectorConstruction::DefineMaterials()
   LSO->AddElement(Lu, 2);
   LSO->AddElement(Si, 1);
   LSO->AddElement(O , 5);
+  */
+  
+  // LYSO
+  G4Element*  O = man->FindOrBuildElement("O" , isotopes);
+  G4Element* Si = man->FindOrBuildElement("Si", isotopes);
+  G4Element* Lu = man->FindOrBuildElement("Lu", isotopes);  
+  G4Element* Ce = man->FindOrBuildElement("Ce", isotopes);		 
+  G4Element*  Y = man->FindOrBuildElement("Y" , isotopes);
+
+  G4Material* LYSO = new G4Material("LYSO", 7.1*g/cm3, 5);
+  LYSO->AddElement(Lu, 71.43*perCent);
+  LYSO->AddElement(Y, 4.03*perCent);
+  LYSO->AddElement(Si, 6.37*perCent);
+  LYSO->AddElement(O, 18.14*perCent);
+  LYSO->AddElement(Ce, 0.02*perCent);
 }
 
 //
@@ -113,7 +130,7 @@ G4VPhysicalVolume* BasicDetectorConstruction::DefineVolumes()
   G4Material* phantom_mat = nist->FindOrBuildMaterial("G4_ADIPOSE_TISSUE_ICRP");
  */
   G4Material* default_mat = nist->FindOrBuildMaterial("G4_AIR");
-  G4Material* tube_mat   = nist->FindOrBuildMaterial("Lu2SiO5");
+  G4Material* tube_mat   = nist->FindOrBuildMaterial("LYSO");
 
   // PET dimensions
   G4double PET_in_rad = (78.6/2)*cm, PET_out_rad = PET_in_rad + (CrystLength)*cm, PET_length = 1.95*m; // vary these
