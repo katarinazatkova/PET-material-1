@@ -109,7 +109,7 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   else if (collinearity == 1){
     
-    G4double phi = 20 * twopi/360;
+    G4double phi = 5 * twopi/360;
 
     fParticleGun->SetParticleMomentumDirection(G4ThreeVector(std::cos(phi), std::sin(phi), 0));
     fParticleGun->GeneratePrimaryVertex(anEvent);
@@ -117,7 +117,7 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   else if (collinearity == 2){         
   
-    G4double phi = 20 * twopi/360;    
+    G4double phi = 5 * twopi/360;    
     G4double theta = twopi * G4UniformRand();
 
     // Direction for the second photon: 
@@ -135,7 +135,7 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     
     // Forming a cone of solid angle proportional to the gauss distribution angle
     // with mu = 0 and sigma = 0.25 degrees.
-    G4double phi_gauss = twopi * G4RandGauss::shoot(0,10) / 360; 
+    G4double phi_gauss = twopi * G4RandGauss::shoot(0,0.25) / 360; 
     G4double theta = twopi * G4UniformRand(); 
     
     // Direction for the second photon: 
