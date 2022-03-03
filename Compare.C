@@ -93,7 +93,7 @@ void Compare(){
 
   TH1D * gausscheck = new TH1D("gausscheck",
 		      "Number of Events against deflection angle(radians)",
-		      100, 0, 2);
+		      100, 0, 0.1);
 
   TH2F * h2_YZ = new TH2F("h2_YZ",
           "2D Histogram of the hits in the Y-Z plane",
@@ -116,7 +116,7 @@ void Compare(){
       d2 = Sqrt( pow((x12-x22),2) + pow((y12-y22),2) + pow((z12-z22),2) );
       displacement = d2 - d1;
 
-      def_angle = asin(Sqrt(pow((y22),2)) + Sqrt(pow((z22),2))/100);
+      def_angle = asin(Sqrt(pow((y22),2)+ (pow((z22),2)))/100);
 
 
       //gamma 1
