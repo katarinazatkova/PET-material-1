@@ -117,7 +117,7 @@ void BasicEventAction::EndOfEventAction(const G4Event* event)
   G4cout << G4endl << " evtNb = " << evtNb ;
 
   // Get hits collections of the sensitive detectors
-  // made of Lu2SiO5 
+  // made of LYSO 
   auto detHC = GetHitsCollection(fDetHCID, event);
 
   // Get hits collection of the human patient (phantom)
@@ -168,9 +168,9 @@ void BasicEventAction::EndOfEventAction(const G4Event* event)
   
   // Defining a good event, or an event which deposits enough 
   // energy for reconstruction of the tumour event. Typically, 
-  // such event occurs if more than 89.4% of the original 
+  // such event occurs if more than 91.8% of the original 
   // energy of 1.022 MeV is deposited in the detector
-  G4double EnergyRes = 1.022*0.106;
+  G4double EnergyRes = 1.022*0.082;
   G4double Threshold = (1.022 - EnergyRes)*MeV;
   
   // dep variable is used for energy deposited in the detector
@@ -194,5 +194,5 @@ void BasicEventAction::EndOfEventAction(const G4Event* event)
 
 }
 
-// energy resolution for LSO is 10.6%
-// good event = edep > 89.4% of 1.022MeV
+// energy resolution for LYSO is 8.2% //
+// good event = edep > 91.8% of 1.022MeV
