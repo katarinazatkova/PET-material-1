@@ -89,19 +89,19 @@ void Compare(){
   
   TH1D * d = new TH1D("d",
 		      "Differences between hits with and without the non-collinearity(mm)",
-		      100, 0, 1000);
+		      100, 0, 10);
 
   TH1D * gausscheck = new TH1D("gausscheck",
 		      "Number of Events against deflection angle(radians)",
-		      100, 0, 3);
+		      100, 0, 2);
 
   TH2F * h2_YZ = new TH2F("h2_YZ",
           "2D Histogram of the hits in the Y-Z plane",
-          100, -40, 40, 100, -40, 40);
+          100, -10, 10, 100, -10, 10);
 
   TH2F * h3_YZ = new TH2F("h3_YZ",
           "3D Histogram of the hits in the Y-Z plane",
-          100, -20, 20, 100, -20, 20);
+          100, -10, 10, 100, -10, 10);
 
 
   for(Long64_t entry = 0; entry < nentries; entry++){
