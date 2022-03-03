@@ -80,76 +80,83 @@ G4bool BasicPETSD::ProcessHits(G4Step* step,
   // Invoke analysisManager instance
   auto analysisManager = G4AnalysisManager::Instance();
 
+  // First step check
+  bool firststep = step->IsFirstStepInVolume();
+
+
   if(0.0 < edep) {
-
-    // Get spatial coordinates of the hits. The method originates
-    // from G4Step() class.
-    G4ThreeVector p1 = step->GetPreStepPoint()->GetPosition();
-    G4ThreeVector p2 = step->GetPostStepPoint()->GetPosition();
     
-    // Check if these are primary particles through GetTrackID()
-    // method. This method belongs to G4Track() class
-    if(step->GetTrack()->GetTrackID() == 1){
+    // Only information about the first step in the sensitive volume is stored.
+    if (firststep == 1){
+      // Get spatial coordinates of the hits. The method originates
+      // from G4Step() class.
+      G4ThreeVector p1 = step->GetPreStepPoint()->GetPosition();
+      G4ThreeVector p2 = step->GetPostStepPoint()->GetPosition();
+    
+      // Check if these are primary particles through GetTrackID()
+      // method. This method belongs to G4Track() class
+      if(step->GetTrack()->GetTrackID() == 1){
       
-      // Fill histograms for particle 1 parameters. Both histograms
-      // and Ntuples are filled, in fact
-      analysisManager->FillH1(2, p1.getX());
-      analysisManager->FillH1(4, p1.getY());
-      analysisManager->FillH1(6, p1.getZ());
+        // Fill histograms for particle 1 parameters. Both histograms
+        // and Ntuples are filled, in fact
+        analysisManager->FillH1(2, p1.getX());
+        analysisManager->FillH1(4, p1.getY());
+        analysisManager->FillH1(6, p1.getZ());
       
-      analysisManager->FillNtupleDColumn(2, p1.getX());
-      analysisManager->FillNtupleDColumn(4, p1.getY());
-      analysisManager->FillNtupleDColumn(6, p1.getZ());
+        analysisManager->FillNtupleDColumn(2, p1.getX());
+        analysisManager->FillNtupleDColumn(4, p1.getY());
+        analysisManager->FillNtupleDColumn(6, p1.getZ());
       
-      // Print statement check method
-      G4cout << "Hit 1 - x: " << G4BestUnit(p1.getX(), "Length") << G4endl;
+        // Print statement check method
+        G4cout << "Hit 1 - x: " << G4BestUnit(p1.getX(), "Length") << G4endl;
       
-      }
+        }
      
-    // Same procedures are carried out for the second primary particle 
-    if(step->GetTrack()->GetTrackID() == 2 && p1.getR() > 0){
+      // Same procedures are carried out for the second primary particle 
+      if(step->GetTrack()->GetTrackID() == 2 && p1.getR() > 0){
     
-      analysisManager->FillH1(3, p1.getX());
-      analysisManager->FillH1(5, p1.getY());
-      analysisManager->FillH1(7, p1.getZ());
+        analysisManager->FillH1(3, p1.getX());
+        analysisManager->FillH1(5, p1.getY());
+        analysisManager->FillH1(7, p1.getZ());
       
-      analysisManager->FillNtupleDColumn(3, p1.getX());
-      analysisManager->FillNtupleDColumn(5, p1.getY());
-      analysisManager->FillNtupleDColumn(7, p1.getZ());
-      }
-  }
-  // step length
-  G4double stepLength = 0.;
-  if ( step->GetTrack()->GetDefinition()->GetPDGCharge() != 0. ) {
-    stepLength = step->GetStepLength();
-  }
+        analysisManager->FillNtupleDColumn(3, p1.getX());
+        analysisManager->FillNtupleDColumn(5, p1.getY());
+        analysisManager->FillNtupleDColumn(7, p1.getZ());
+        }
+    }
+    // step length
+    G4double stepLength = 0.;
+    if ( step->GetTrack()->GetDefinition()->GetPDGCharge() != 0. ) {
+      stepLength = step->GetStepLength();
+    }
 
-  if ( edep==0. && stepLength == 0. ) return false;
+    if ( edep==0. && stepLength == 0. ) return false;
 
-  auto touchable = (step->GetPreStepPoint()->GetTouchable());
+    auto touchable = (step->GetPreStepPoint()->GetTouchable());
 
-  auto layerNumber = touchable->GetReplicaNumber(1);
+    auto layerNumber = touchable->GetReplicaNumber(1);
 
-  // Get hit accounting data
-  auto hit = (*fHitsCollection)[layerNumber];
-  if ( ! hit ) {
-    G4ExceptionDescription msg;
-    msg << "Cannot access hit " << layerNumber;
-    G4Exception("BasicPETSD::ProcessHits()",
-      "MyCode0004", FatalException, msg);
-  }
+    // Get hit accounting data
+    auto hit = (*fHitsCollection)[layerNumber];
+    if ( ! hit ) {
+      G4ExceptionDescription msg;
+      msg << "Cannot access hit " << layerNumber;
+      G4Exception("BasicPETSD::ProcessHits()",
+        "MyCode0004", FatalException, msg);
+    }
 
-  // Get hit for total accounting
-  auto hitTotal
-    = (*fHitsCollection)[fHitsCollection->entries()-1];
+    // Get hit for total accounting
+    auto hitTotal
+      = (*fHitsCollection)[fHitsCollection->entries()-1];
 
-  // Add values
-  hit->Add(edep, stepLength);
-  hitTotal->Add(edep, stepLength);
+    // Add values
+    hit->Add(edep, stepLength);
+    hitTotal->Add(edep, stepLength);
   
-  // analysisManager->AddNtupleRow();
+    // analysisManager->AddNtupleRow();
 
-  return true;
+    return true;
+  }
 }
 
 //
@@ -167,4 +174,3 @@ void BasicPETSD::EndOfEvent(G4HCofThisEvent*)
 }
 
 //
-
