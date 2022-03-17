@@ -133,7 +133,7 @@ G4VPhysicalVolume* BasicDetectorConstruction::DefineVolumes()
   G4Material* tube_mat   = nist->FindOrBuildMaterial("LYSO");
 
   // PET dimensions
-  G4double PET_in_rad = (78.6/2)*cm, PET_out_rad = PET_in_rad + (CrystLength)*cm, PET_length = 1.95*m; // vary these
+  G4double PET_in_rad = (78.6/2)*cm, PET_out_rad = PET_in_rad + (CrystLength)*cm, PET_length = 1.94*m; // vary these
 
   // world size
   G4double world_dim = 4*m;
@@ -169,7 +169,7 @@ G4VPhysicalVolume* BasicDetectorConstruction::DefineVolumes()
   G4Tubs* solidTube =
     new G4Tubs("Tube", PET_in_rad, PET_out_rad, 0.5*PET_length, 0., twopi);
 
-// fill it with LSO
+// fill it with LYSO
 
   G4LogicalVolume* logicTube =
   new G4LogicalVolume(solidTube,
@@ -191,7 +191,7 @@ new G4PVPlacement(0,                       // no rotation
   // patient
   //
   G4double patient_radius = (76/2)*cm;
-  G4double patient_dZ = 1.95*m;  
+  G4double patient_dZ = 1.94*m;  
     
   G4Tubs* solidPatient =
     new G4Tubs("Patient", 0., patient_radius, 0.5*patient_dZ, 0., twopi);
