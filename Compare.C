@@ -39,7 +39,7 @@ void Compare(){
   
   // Input files
   TFile *inputFileNoGauss   = new TFile("BasicNoGaussC.root", "read");
-  TFile *inputFileWithGauss = new TFile("BasisWithGaussC.root", "read");
+  TFile *inputFileWithGauss = new TFile("BasicWithGaussC.root", "read");
   
   // Output variables
   Double_t	d1;
