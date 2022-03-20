@@ -152,23 +152,22 @@ void Compare(){
       cout << " y21 = " << y21 << endl;
     
       cout << endl;
-      cout << " z12 = " << z12 << endl;
-      cout << " z22 = " << z22 << endl;
+      cout << " z11 = " << z11 << endl;
+      cout << " z21 = " << z21 << endl;
 
 
       //gamma 2
       cout << endl;
-      cout << " x12 = " << x12 << endl;
+      cout << " x21 = " << x21 << endl;
       cout << " x22 = " << x22 << endl;
 
       cout << endl;
-      cout << " y12 = " << y12 << endl;
+      cout << " y21 = " << y21 << endl;
       cout << " y22 = " << y22 << endl;
     
       cout << endl;
-      cout << " z12 = " << z12 << endl;
+      cout << " z21 = " << z21 << endl;
       cout << " z22 = " << z22 << endl;
-
 
       cout << "Distance d1 is: " << d1 << endl;
       cout << "Distance d2 is: " << d2 << endl;
