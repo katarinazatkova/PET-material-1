@@ -105,9 +105,9 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
   
 
   // Only these parameters need to be changed
-  G4int position = 1;
-  G4int direction = 2;
-  G4int collinearity = 1;
+  G4int position = 0;
+  G4int direction = 0;
+  G4int collinearity = 0;
 
   // We work with gamma rays of 511 keV 
   fParticleGun->SetParticleDefinition(particleTable->FindParticle(particleName="gamma"));
