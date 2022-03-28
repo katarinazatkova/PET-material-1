@@ -24,7 +24,6 @@
 // ********************************************************************
 
 #include "BasicPrimaryGeneratorAction.hh"
-
 #include "G4RunManager.hh"
 #include "G4Event.hh"
 #include "G4ParticleGun.hh"
@@ -54,10 +53,15 @@ BasicPrimaryGeneratorAction::~BasicPrimaryGeneratorAction()
   delete fParticleGun;
 }
 
-//
+// Intitializing the seeds 
+G4int seed1 = 0;
+G4int seed2 = 10000000;
+G4int seed3 = 20000000;
+G4int seed4 = 30000000;
+G4int seed5 = 40000000;
 
-void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
-{
+
+void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
   G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
   G4String particleName;
   
@@ -67,11 +71,12 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   
   
   // Case 1: check that hits' distribution matches the expected
-  // Gauss distribution of parameters mu = 0 and sigma = 0.25 degrees. 
+  // Gaussian distribution of parameters mu = 0 and sigma = (0.25/2.35) degrees.
+  // This is because FWHM = 2.35*sigma = 0.25 degrees.  
   // By choice, the hits will go towards the opposite x-axis. One of them will
   // go straight towards (-1,0,0) direction. The other one will suffer the non-
   // collinearity effect from the annihilation event. It also contains different 
-  // collinearity cases for testing and resolution analysis purposes.
+  // collinearity/noncollinearity cases for testing and resolution analysis purposes.
   
   // NOTE: 
   // When running this part, comment out the patient of the detector from BasicDetectorConstruction.cc file.
@@ -82,105 +87,90 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     // fixed source position at (0,0,0)
     // direction 0: 
       // Implementation of different beam cases for +x direction photon (-x direction photon is fixed):
-      // collinearity 0 - back-to-back
-      // collinearity 1 - fixed direction at 5 deg wrt photon 1
-      // collinearity 2 - fixed angle around beam axis
-      // collinearity 3 - with Gaussian angular distribution 
+      // collinearity 0 - collinear, back-to-back
+      // collinearity 1 - non-collinear, fixed direction at (0.25/2.35)*deg wrt photon 1
+      // collinearity 2 - non-collinear, with Gaussian angular distribution 
     // direction 1:
       // Implementation for oblique events
       // collinearity 0 - collinear, back-to-back
-      // collinearity 1 - noncollinear, with Gaussian angular distribution 
+      // collinearity 1 - non-collinear, with Gaussian angular distribution 
     // direction 2: 
       // Implementation for isotropic distribution
       // collinearity 0 - collinear, back-to-back
-      // collinearity 1 - noncollinear, Gaussian angular distribution
+      // collinearity 1 - non-collinear, Gaussian angular distribution
   // position 1:
     // variable source position with isotropic beam directions
     // collinearity 0 - collinear, back-to-back
-    // collinearity 1 - noncollinear, Gaussian angular distribution
+    // collinearity 1 - non-collinear, Gaussian angular distribution
   
 
-  // only these parameters need to be changed
-  int position = 0;
-  int direction = 1;
-  int collinearity = 1; 
+  // Only these parameters need to be changed
+  G4int position = 1;
+  G4int direction = 2;
+  G4int collinearity = 1;
+
+  // We work with gamma rays of 511 keV 
+  fParticleGun->SetParticleDefinition(particleTable->FindParticle(particleName="gamma"));
+  fParticleGun->SetParticleEnergy(511*keV); 
 
   
   if (position == 0){
-    // Get a vertex
+    // Vertex position
     G4double x0  = 0*cm, y0  = 0*cm, z0  = 0*cm;
     
-    fParticleGun->SetParticleDefinition(particleTable->FindParticle(particleName="gamma"));
-    fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
-    fParticleGun->SetParticleEnergy(511*keV);
-  
+    // Gamma rays have their origin at (0,0,0)
+    fParticleGun->SetParticlePosition(G4ThreeVector(x0, y0, z0));
 
     if (direction == 0){
-      // We work with gamma rays of 511 keV with the origin at (0,0,0) vector
-      
       G4ThreeVector dir0 = G4ThreeVector(-1, 0, 0);
+
       // Photon 1
       fParticleGun->SetParticleMomentumDirection(dir0);
       fParticleGun->GeneratePrimaryVertex(anEvent);
 
       // Photon 2
       if (collinearity == 0){
-        fParticleGun->SetParticleMomentumDirection(-dir0);
+        fParticleGun->SetParticleMomentumDirection(- dir0);
         fParticleGun->GeneratePrimaryVertex(anEvent);
       }
 
       else if (collinearity == 1){
-        G4double phi = 5 * twopi/360;
-        fParticleGun->SetParticleMomentumDirection(G4ThreeVector(std::cos(phi), std::sin(phi), 0));
-        fParticleGun->GeneratePrimaryVertex(anEvent);
-      }
+        G4double phi = (0.25/2.35) * twopi/360;
+        G4ThreeVector dircol1 = G4ThreeVector(std::cos(phi), std::sin(phi), 0);
 
-      else if (collinearity == 2){         
-        G4double phi = 5 * twopi/360;    
-        G4double theta = twopi * G4UniformRand();
-
-        // Direction for the second photon: 
-        // It goes in positive x-direction with a slight solid angle for y and z non-zero values.
-        // Spherical polar coordinates are used
-        G4ThreeVector dircol2 = G4ThreeVector(std::cos(phi), 
-                      std::sin(phi) * std::cos(theta), 
-                      std::sin(phi) * std::sin(theta));  
-
-        fParticleGun->SetParticleMomentumDirection(dircol2);
+        fParticleGun->SetParticleMomentumDirection(dircol1);
         fParticleGun->GeneratePrimaryVertex(anEvent);
       }
       
       else{
-        // Forming a cone of solid angle proportional to the gauss distribution angle
-        // with mu = 0 and sigma = 0.25 degrees.
-        G4double phi_gauss = twopi * G4RandGauss::shoot(0,0.25) / 360; 
+        // The second photon goes in positive x direction with a slight solid angle proportional 
+        // to the Gaussian distribution angle with mu = 0 and sigma = (0.25/2.35) degrees.
+        // This is because FWHM = 2.35*sigma = 0.25 degrees.
+        G4double phi_gauss = twopi * G4RandGauss::shoot(0, (0.25/2.35)) / 360; 
         G4double theta = twopi * G4UniformRand(); 
-        
-        // Direction for the second photon: 
-        // It goes in positive x-direction with a slight solid angle proportional
-        // to the gauss distribution angle with mu = 0 and sigma = 0.25 degrees.
-        // Spherical polar coordinates are used again
-        G4ThreeVector dircol3 = G4ThreeVector(std::cos(phi_gauss), 
+
+        // Spherical polar coordinates are used 
+        G4ThreeVector dircol2 = G4ThreeVector(std::cos(phi_gauss), 
                       std::sin(phi_gauss) * std::cos(theta), 
                       std::sin(phi_gauss) * std::sin(theta));  
 
-        fParticleGun->SetParticleMomentumDirection(dircol3);
+        fParticleGun->SetParticleMomentumDirection(dircol2);
         fParticleGun->GeneratePrimaryVertex(anEvent);
       }
     }
 
+    else if (direction == 1){      
+      // For simplicity y component is kept at zero
+      // Choose if the simulation should be run for slightly or highly oblique events:
 
-    else if (direction == 1){
-      // for simplicity y is kept at zero
-      
-      // for slightly oblique events
-      //G4ThreeVector dir = G4ThreeVector(-1, 0, -1);
+      // For slightly oblique events
+      G4ThreeVector dir1 = G4ThreeVector(-1, 0, -1);
 
-      // for highly oblique events that reach almost the end of the detector
-      // detector length to diameter ratio is ~2.5, 
-      // to ensure that the particles hit the detector even in the noncollinear
-      // beam case, choose z to x ratio of e.g. 2.3
-      G4ThreeVector dir1 = G4ThreeVector(-1, 0, -2.3);
+      // For highly oblique events that reach almost the end of the detector
+      // detector length to diameter ratio is ≈ 2.5. 
+      // To ensure that the particles hit the detector even in the noncollinear
+      // beam case, choose z to x ratio of e.g. 2.4.
+      //G4ThreeVector dir1 = G4ThreeVector(-1, 0, -2.4);
 
       // Photon 1
       fParticleGun->SetParticleMomentumDirection(dir1);
@@ -188,59 +178,71 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
       // Photon 2
       if (collinearity == 0){
-        fParticleGun->SetParticleMomentumDirection(-dir1);
+        fParticleGun->SetParticleMomentumDirection(- dir1);
         fParticleGun->GeneratePrimaryVertex(anEvent);
       }
 
       else if (collinearity == 1){
-        // finding the angle about which to rotate
+        // Finding the angle about which to rotate
         G4double angle = dir1.angle(G4ThreeVector(-1, 0, 0));
 
-        // setting angles
-        G4double phi_g = twopi * G4RandGauss::shoot(0,0.25) / 360;
+        // Setting angles
+        G4double phi_g = twopi * G4RandGauss::shoot(0,(0.25/2.35)) / 360;
         G4double theta_g = twopi * G4UniformRand(); 
 
-        // noncollinear vector placed around (1,0,0)
-        G4ThreeVector antidir = G4ThreeVector(std::cos(phi_g), 
+        // Noncollinear vector placed around (1,0,0) direction
+        G4ThreeVector antidir1 = G4ThreeVector(std::cos(phi_g), 
                       std::sin(phi_g) * std::cos(theta_g), 
                       std::sin(phi_g) * std::sin(theta_g));
         
-        // this vector is then rotated around y axis
-        antidir.rotate(-angle,G4ThreeVector(0,1,0));
+        // This vector is then rotated around y axis
+        antidir1.rotate(- angle, G4ThreeVector(0, 1, 0));
 
-        fParticleGun->SetParticleMomentumDirection(antidir);
+        fParticleGun->SetParticleMomentumDirection(antidir1);
         fParticleGun->GeneratePrimaryVertex(anEvent);
       }
     }
 
-
     else if (direction == 2){
+      // Photons 1 will point in random directions
+      CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine());
+      CLHEP::HepRandom::setTheSeed(seed1);
       G4double theta = twopi * G4UniformRand();
+      seed1 += 1;
+      
+      CLHEP::HepRandom::setTheSeed(seed2);
       G4double phi = twopi * G4UniformRand();
-      
-      G4ThreeVector dir2 = G4ThreeVector(std::cos(theta) * std::sin(phi), std::cos(theta) * std::cos(phi), 
-                    std::sin(theta));
-      
+      seed2 += 1;
+
+      G4ThreeVector dir2 = G4ThreeVector(std::sin(theta) * std::cos(phi),
+                    std::sin(theta) * std::sin(phi),
+                    std::cos(theta));
       // Photon 1
-      fParticleGun->SetParticleMomentumDirection(dir2);
+      fParticleGun->SetParticleMomentumDirection(- dir2);
       fParticleGun->GeneratePrimaryVertex(anEvent);
 
       // Photon 2
       if (collinearity == 0){
-        G4ThreeVector dir2nogauss = G4ThreeVector(-std::cos(theta) * std::sin(phi), -std::cos(theta) * std::cos(phi),
-                    -std::sin(theta));
-        
-        fParticleGun->SetParticleMomentumDirection(dir2nogauss);
+        fParticleGun->SetParticleMomentumDirection(dir2);
         fParticleGun->GeneratePrimaryVertex(anEvent);
       }
 
       else if (collinearity == 1){
-        G4double gauss_dev = G4RandGauss::shoot(0, 0.25) * twopi / 360;
+        // Setting angles
+        G4double phi_g2 = twopi * G4RandGauss::shoot(0,(0.25/2.35)) / 360;
+        G4double theta_g2 = twopi * G4UniformRand();        
         
-        G4ThreeVector dir2gauss = G4ThreeVector(-std::cos(theta + gauss_dev) * std::sin(phi), -std::cos(theta + gauss_dev) * std::cos(phi),
-                    -std::sin(theta + gauss_dev));
+        G4ThreeVector antidir2 = G4ThreeVector(std::cos(phi_g2), 
+                      std::sin(phi_g2) * std::cos(theta_g2), 
+                      std::sin(phi_g2) * std::sin(theta_g2));
+        G4ThreeVector pos = G4ThreeVector(1, 0, 0);
         
-        fParticleGun->SetParticleMomentumDirection(dir2gauss);
+        G4ThreeVector v = pos.cross(dir2);
+        G4double a = pos.angle(dir2);
+        
+        antidir2.rotate(a, v);
+        
+        fParticleGun->SetParticleMomentumDirection(antidir2);
         fParticleGun->GeneratePrimaryVertex(anEvent);
       }
     }
@@ -248,53 +250,73 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 
   else if (position == 1){
-    // uniform radiation spread throughout the cylinder
+    // Uniform radiation spread throughout the cylinder
     G4double PET_radius = (78.6/2)*cm;
     G4double z_max = 1.94*m;
     G4double alpha_max = twopi;
-  
+    
+    CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine());
+
+
     // Introducing uniform randomness
+    CLHEP::HepRandom::setTheSeed(seed1);
     G4double r = PET_radius * G4UniformRand();
+    seed1 += 1;
+
+    CLHEP::HepRandom::setTheSeed(seed2);
     G4double z = z_max * G4UniformRand() - 0.5 * z_max;
+    seed2 += 1;
+    
+    CLHEP::HepRandom::setTheSeed(seed3);
     G4double alpha = alpha_max * G4UniformRand();
+    seed3 += 1;
   
     // Apply the spherical polar coordinates
     G4ThreeVector radiationOrigin = G4ThreeVector(r * std::cos(alpha), r * std::sin(alpha), z); 
-
-    //CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine());
-    //CLHEP::HepRandom::setTheSeed(0);
-
-    // angles  
-    G4double theta = twopi * G4UniformRand();
-    G4double phi = twopi * G4UniformRand();
-    G4double gauss_dev = G4RandGauss::shoot(0,0.25) * twopi / 360;
     
-    // Now use the spherical polar coordinates two produce two beams in nearly opposite directions
-    G4ThreeVector dirpos1 = G4ThreeVector(std::cos(theta) * std::sin(phi), std::cos(theta) * std::cos(phi), 
-                  std::sin(theta));
+
+    CLHEP::HepRandom::setTheSeed(seed4);;
+    G4double theta_pos1 = twopi * G4UniformRand();
+    seed4 += 1;
     
-    fParticleGun->SetParticleDefinition(particleTable->FindParticle(particleName="gamma"));
-      
-    // Photon 1
+    CLHEP::HepRandom::setTheSeed(seed5);
+    G4double phi_pos1 = twopi * G4UniformRand();
+    seed5 += 1;
+
+    G4ThreeVector dirpos1 = G4ThreeVector(std::sin(theta_pos1) * std::cos(phi_pos1),
+                         std::sin(theta_pos1) * std::sin(phi_pos1),
+                         std::cos(theta_pos1));
+
+
+    // Setting the radiation origin
     fParticleGun->SetParticlePosition(radiationOrigin);
-    fParticleGun->SetParticleEnergy(511*keV);
-    fParticleGun->SetParticleMomentumDirection(dirpos1);
+    
+    // Photon 1
+    fParticleGun->SetParticleMomentumDirection(- dirpos1);
     fParticleGun->GeneratePrimaryVertex(anEvent);
 
     // Photon 2
     if (collinearity == 0){
-      G4ThreeVector dirpos1nogauss = G4ThreeVector(-std::cos(theta) * std::sin(phi), -std::cos(theta) * std::cos(phi),
-                  -std::sin(theta));
-      
-      fParticleGun->SetParticleMomentumDirection(dirpos1nogauss);
+      fParticleGun->SetParticleMomentumDirection(dirpos1);
       fParticleGun->GeneratePrimaryVertex(anEvent);
-    }
+      }
 
-    else if (collinearity == 1){
-      G4ThreeVector dirpos1gauss = G4ThreeVector(-std::cos(theta + gauss_dev) * std::sin(phi), -std::cos(theta + gauss_dev) * std::cos(phi),
-                  -std::sin(theta + gauss_dev));
-      
-      fParticleGun->SetParticleMomentumDirection(dirpos1gauss);
+    else if (collinearity == 1){ 
+      // Setting angles
+      G4double phi_gpos1= twopi * G4RandGauss::shoot(0,(0.25/2.35)) / 360;
+      G4double theta_gpos1 = twopi * G4UniformRand(); 
+
+      G4ThreeVector antidirpos1 = G4ThreeVector(std::cos(phi_gpos1), 
+                      std::sin(phi_gpos1) * std::cos(theta_gpos1), 
+                      std::sin(phi_gpos1) * std::sin(theta_gpos1));
+      G4ThreeVector pos1 = G4ThreeVector(1, 0, 0);
+
+      G4ThreeVector v_pos1 = pos1.cross(dirpos1);
+      G4double a_pos1 = pos1.angle(dirpos1);
+        
+      antidirpos1.rotate(a_pos1, v_pos1);
+        
+      fParticleGun->SetParticleMomentumDirection(antidirpos1);
       fParticleGun->GeneratePrimaryVertex(anEvent);
     }
   }
@@ -307,7 +329,9 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   
   // Case 2: now design a uniform radiation spread throughout the human phantom. The patient can be commented
   // out or not. The patient and detector are modelled as cyllinders, so cyllindrical polar coordinates will 
-  // be used. Use the maximum allowed values.
+  // be used. Use the maximum allowed values. 
+  // This part of the code was not used for the spatial resolution analysis. 
+  // Note that the detector dimensions used here are not the ones of the uEXPLORER.
   
   G4double PET_radius = 15*cm;
   G4double z_max = 1.95*m;
