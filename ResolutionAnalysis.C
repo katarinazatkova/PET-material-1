@@ -138,7 +138,7 @@ void Compare(){
       //if (((z11 > min_range) && (z11 < max_range)) && ((z12 > min_range) && (z12 < max_range)) && ((z21 > min_range) &&  (z21 < max_range)) && ((z22 > min_range) && (z22 < max_range))){
       
       // Considering only highly oblique events at max 20 cm from the edge of the PET detector
-      if (((z11 < min_range) || (z11 > max_range)) && ((z12 < min_range) || (z12 > max_range)) && ((z21 < min_range) ||  (z21 > max_range)) && ((z22 < min_range) ||  (z22 > max_range))){
+      //if (((z11 < min_range) || (z11 > max_range)) && ((z12 < min_range) || (z12 > max_range)) && ((z21 < min_range) ||  (z21 > max_range)) && ((z22 < min_range) ||  (z22 > max_range))){
     
       d1 = Sqrt( pow((x11-x21),2) + pow((y11-y21),2) + pow((z11-z21),2) ); 
       d2 = Sqrt( pow((x12-x22),2) + pow((y12-y22),2) + pow((z12-z22),2) );
