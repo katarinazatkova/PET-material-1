@@ -261,15 +261,15 @@ void BasicPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
     // Introducing uniform randomness
     CLHEP::HepRandom::setTheSeed(seed1);
     G4double r = PET_radius * G4UniformRand();
-    seed1 += 1;
+    //seed1 += 1;
 
-    CLHEP::HepRandom::setTheSeed(seed2);
+    //CLHEP::HepRandom::setTheSeed(seed2);
     G4double z = z_max * G4UniformRand() - 0.5 * z_max;
-    seed2 += 1;
+    //seed2 += 1;
     
-    CLHEP::HepRandom::setTheSeed(seed3);
+    //CLHEP::HepRandom::setTheSeed(seed3);
     G4double alpha = alpha_max * G4UniformRand();
-    seed3 += 1;
+    //seed3 += 1;
   
     // Apply the spherical polar coordinates
     G4ThreeVector radiationOrigin = G4ThreeVector(r * std::cos(alpha), r * std::sin(alpha), z); 
